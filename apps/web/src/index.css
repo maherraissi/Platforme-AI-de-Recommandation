@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic helpers for charts/cards spacing */
+.card + .card { margin-top: 1rem; }

@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(CANDIDATE)
+  candidate Candidate?
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  RECRUITER
+  CANDIDATE
+}
+
+model Candidate {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  location  String?
+  seniority String?
+  preferences Json?
+  user      User    @relation(fields: [userId], references: [id])
+}
+
+model Resume {
+  id          String   @id @default(cuid())
+  candidateId String
+  objectKey   String
+  parsedText  String?
+  lang        String?
+  createdAt   DateTime @default(now())
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+}
+
+model Skill {
+  id     String @id @default(cuid())
+  escoId String @unique
+  label  String
+}
+
+model CandidateSkill {
+  candidateId String
+  skillId     String
+  level       Int?
+  source      String?
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  skill       Skill     @relation(fields: [skillId], references: [id])
+  @@id([candidateId, skillId])
+}
+
+model Job {
+  id           String   @id @default(cuid())
+  title        String
+  company      String?
+  location     String?
+  contractType String?
+  salaryMin    Int?
+  salaryMax    Int?
+  lang         String?
+  createdAt    DateTime @default(now())
+}
+
+model JobSkill {
+  jobId     String
+  skillId   String
+  level     Int?
+  required  Boolean @default(true)
+  job       Job     @relation(fields: [jobId], references: [id])
+  skill     Skill   @relation(fields: [skillId], references: [id])
+  @@id([jobId, skillId])
+}
